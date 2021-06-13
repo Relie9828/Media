@@ -2,17 +2,11 @@ const functions = require("firebase-functions");
 const admin = require('firebase-admin');
 
 admin.initializeApp();
-// // Create and Deploy Your First Cloud Functions
-// // https://firebase.google.com/docs/functions/write-firebase-functions
-//
-exports.helloWorld = functions.https.onRequest((request, response) => {
-  functions.logger.info("Hello logs!", {structuredData: true});
-  response.send("Hello, Aurelien");
-});
 
-// Getting or calling screams already in the database
+const express = required('express')
+const app = express();
 
-exports.getScreams = functions.https.onRequest((req, res) => {
+app.get('/scream', (req, res) => {
     admin
         .firestore()
         .collection('scream')
@@ -25,11 +19,37 @@ exports.getScreams = functions.https.onRequest((req, res) => {
             return res.json(scream);
         })
         .catch((err) => console.error.error(err));
-});
+})
+
+
+
+// Getting or calling screams already in the database
+
+// exports.getScreams = functions.https.onRequest((req, res) => {
+//     admin
+//         .firestore()
+//         .collection('scream')
+//         .get()
+//         .then((data) => {
+//             let scream = [];
+//             data.forEach((doc) => {
+//                 scream.push(doc.data());
+//             });
+//             return res.json(scream);
+//         })
+//         .catch((err) => console.error.error(err));
+// });
+
+
 
 // This script would be to add a new scream to the database
 
 exports.createScream = functions.https.onRequest((req, res) => {
+
+    // this will block any request from client side
+    if(req.method !== 'POST'){
+        return res.status(400).json({error: "Method not allowed"})
+    }
    const newScream = {
        body: req.body.body,
        userHandle: req.body.userHandle,
@@ -39,12 +59,15 @@ exports.createScream = functions.https.onRequest((req, res) => {
    admin
     .firestore()
     .collection('scream')
-    .add(newScreams)
+    .add(newScream)
     .then((doc) => {
-        req.json({ message: `document ${doc.id} created succesfully`});
+        res.json({message: `document ${doc.id} created succesfully`});
     })
     .catch((err) => {
         res.status(500).json({error: 'something went wrong'});
         console.error(err);
     });
 });
+
+// this function is used to get the function as an API https request
+exports.api = functions.https.onRequest(app);
