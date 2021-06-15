@@ -12,11 +12,19 @@ app.get ('/scream', (req, res) => {
     admin
     .firestore()
     .collection('scream')
+    // this orders the screams by date
+    .orderBy('createdAt', 'desc')
     .get()
     .then((data) => {
         let scream = [];
         data.forEach((doc) => {
-            scream.push(doc.data());
+            // gives us controll over which scream we show and were also able to pass the screamID
+            scream.push({
+                screamId: doc.id,
+                body: doc.data().body,
+                userHandle: doc.data().userHandle,
+                createdAt: doc.data().createdAt,
+            });
         });
         return res.json(scream);
     })
@@ -43,16 +51,17 @@ app.get ('/scream', (req, res) => {
 
 
 // passing data into the data base with body, userHandle, & timestamp
-exports.createScream = functions.https.onRequest((req, res) => {
+app.post('/scream', (req, res) => {
 
-    // block any request from client side
-    if(req.method !== 'POST'){
-        return res.status(400).json({error: "Method not allowed"})
-    }
+    // block any request from client side -- currently not needed since we've passed app.post('/scream', (req, res) above which automatically executes this code for us --.
+
+    // if(req.method !== 'POST'){
+    //     return res.status(400).json({error: "Method not allowed"})
+    // }
    const newScream = {
        body: req.body.body,
        userHandle: req.body.userHandle,
-       createdAt: admin.firestore.Timestamp.fromDate(new Date())
+       createdAt: new Date().toISOString()
    };
    
    admin
