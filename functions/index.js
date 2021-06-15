@@ -1,52 +1,51 @@
 const functions = require("firebase-functions");
 const admin = require('firebase-admin');
 
+
 admin.initializeApp();
 
-const express = required('express')
+const express = require('express');
 const app = express();
 
-app.get('/scream', (req, res) => {
+
+app.get ('/scream', (req, res) => {
     admin
-        .firestore()
-        .collection('scream')
-        .get()
-        .then((data) => {
-            let scream = [];
-            data.forEach((doc) => {
-                scream.push(doc.data());
-            });
-            return res.json(scream);
-        })
-        .catch((err) => console.error.error(err));
+    .firestore()
+    .collection('scream')
+    .get()
+    .then((data) => {
+        let scream = [];
+        data.forEach((doc) => {
+            scream.push(doc.data());
+        });
+        return res.json(scream);
+    })
+    .catch((err) => console.error.error(err));
 })
 
 
-
-// Getting or calling screams already in the database
-
-// exports.getScreams = functions.https.onRequest((req, res) => {
-//     admin
-//         .firestore()
-//         .collection('scream')
-//         .get()
-//         .then((data) => {
-//             let scream = [];
-//             data.forEach((doc) => {
-//                 scream.push(doc.data());
-//             });
-//             return res.json(scream);
-//         })
-//         .catch((err) => console.error.error(err));
-// });
-
+// Requesting scream which are stored in the database
+// exports.getScreams = functions.https.onRequest ((req, res) => {
+    // admin
+    // .firestore()
+    // .collection('scream')
+    // .get()
+    // .then((data) => {
+    //     let scream = [];
+    //     data.forEach((doc) => {
+    //         // function that returns the data inside the document
+    //         scream.push(doc.data());
+    //     });
+    //     return res.json(scream);
+    // })
+    // .catch((err) => console.error.error(err));
+// })
 
 
-// This script would be to add a new scream to the database
-
+// passing data into the data base with body, userHandle, & timestamp
 exports.createScream = functions.https.onRequest((req, res) => {
 
-    // this will block any request from client side
+    // block any request from client side
     if(req.method !== 'POST'){
         return res.status(400).json({error: "Method not allowed"})
     }
@@ -69,5 +68,6 @@ exports.createScream = functions.https.onRequest((req, res) => {
     });
 });
 
-// this function is used to get the function as an API https request
+
+// the ./app now needs to be exported so i can be exported as an API
 exports.api = functions.https.onRequest(app);
