@@ -1,11 +1,23 @@
 const functions = require("firebase-functions");
 const admin = require('firebase-admin');
-
+const app = require('express')();
 
 admin.initializeApp();
 
-const express = require('express');
-const app = express();
+const firebaseConfig = {
+    apiKey: "AIzaSyASF9HYDb6NammIrZ5A8a7IKe_ob2JlVmE",
+    authDomain: "new-social-c2d10.firebaseapp.com",
+    projectId: "new-social-c2d10",
+    storageBucket: "new-social-c2d10.appspot.com",
+    messagingSenderId: "220054453914",
+    appId: "1:220054453914:web:a856e4fff2dfbe03cb2923",
+    measurementId: "G-HSESEZ1SFD"
+  };
+
+//config has been passed here so firebase knows which one we're talking about
+const firebase = reqire('firebase');
+firebase.initializeApp(firebaseConfig);
+
 
 
 app.get ('/scream', (req, res) => {
@@ -76,6 +88,29 @@ app.post('/scream', (req, res) => {
         console.error(err);
     });
 });
+
+
+//sign up Route
+app.post('/signup', (req, res) => {
+    const newUser ={
+        email: req.body.email,
+        password: req.body.password,
+        confirmPassword: req.body.confirmPassword,
+        handle: req.body.handle,
+    }
+
+    //TODO validate data
+firebase
+    .auth()
+    .createUserWithEmailAndPAssword(newUser.email, newUser.password)
+    .then(data =>{
+        return res.status(201).json({message:`user ${data.user.uid} You're now signed up`});
+    })
+    .catch((err) => {
+        console.error((err));
+        return res.status(500).json({erroe: err.code});
+    });
+})
 
 
 // the ./app now needs to be exported so i can be exported as an API
